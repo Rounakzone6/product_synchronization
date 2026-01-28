@@ -1,18 +1,11 @@
-import { Route, Routes } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import Profile from "./pages/Profile";
-import { ToastContainer } from "react-toastify";
+import { useContext } from "react";
+import AppContext from "./context/AppContext";
+import Login from "./components/Login";
+import Home from "./pages/Home";
 
 const App = () => {
-  return (
-    <>
-      <ToastContainer />
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
-      </Routes>
-    </>
-  );
+  const { token } = useContext(AppContext);
+  return <>{token === "" ? <Login /> : <Home />}</>;
 };
 
 export default App;

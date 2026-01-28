@@ -1,7 +1,6 @@
 import adminModel from "../models/adminModel.js";
 import jwt from "jsonwebtoken";
-import bcrypt, { genSalt } from "bcrypt";
-import productModel from "../models/productModel.js";
+import bcrypt from "bcrypt";
 
 const adminRegister = async (req, res) => {
   try {
@@ -22,7 +21,7 @@ const adminRegister = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" },
     );
-    res.json({ success: true, token });
+    res.json({ success: true, token, message: "Welcome to Dashboard" });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
@@ -41,7 +40,7 @@ const adminLogin = async (req, res) => {
     const token = jwt.sign({ id: admin._id, email }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
-    res.json({ success: true, token });
+    res.json({ success: true, token, message: "Welcome to Dashboard" });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }

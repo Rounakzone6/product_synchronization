@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AppContext from "./AppContext";
-import axios from "axios";
 
 const ContextProvider = (props) => {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
@@ -10,10 +9,12 @@ const ContextProvider = (props) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const response = await axios(`${backendUrl}/admin`);
-    };
-  });
+    if (token) {
+      localStorage.setItem("token", token);
+    } else {
+      localStorage.removeItem("token");
+    }
+  }, [token]);
 
   const value = useMemo(
     () => ({

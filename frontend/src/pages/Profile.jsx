@@ -1,9 +1,6 @@
-import { useState } from "react";
 import UpdateBank from "../components/UpdateBank";
 import UpdateBusiness from "../components/UpdateBusiness";
 import UpdateTnc from "../components/UpdateTnc";
-import { toast } from "react-toastify";
-import axios from "axios";
 
 const Profile = () => {
   return (
