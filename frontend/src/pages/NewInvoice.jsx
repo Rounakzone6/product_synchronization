@@ -71,7 +71,7 @@ const NewInvoice = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-gray-100 p-4 ml-64">
       {/* ================= INVOICE ================= */}
       <div id="invoice-pdf" className="invoice-container mx-auto p-6">
         {/* HEADER */}

@@ -9,6 +9,7 @@ const Navbar = () => {
   };
 
   return (
+    <div className="sticky top-0 z-10 bg-gray-500">
     <div className="flex max-w-[90vw] py-4 mx-auto items-center justify-between">
       <p className="text-2xl font-medium">Billing System</p>
       <div className="flex gap-4">
@@ -25,6 +26,7 @@ const Navbar = () => {
           Logout
         </button>
       </div>
+    </div>
     </div>
   );
 };
