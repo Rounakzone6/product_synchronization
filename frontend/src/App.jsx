@@ -1,11 +1,41 @@
 import { useContext } from "react";
+import { Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import AppContext from "./context/AppContext";
 import Login from "./components/Login";
-import Home from "./pages/Home";
+import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
+import Profile from "./pages/Profile";
+import Dashboard from "./pages/Dashboard";
+import Products from "./pages/Products";
+import Addproduct from "./pages/Addproduct";
+import NewInvoice from "./pages/NewInvoice";
+
 
 const App = () => {
   const { token } = useContext(AppContext);
-  return <>{token === "" ? <Login /> : <Home />}</>;
+  return (
+    <>
+      {token === "" ? (
+        <Login />
+      ) : (
+        <>
+          <ToastContainer />
+          <Navbar />
+          <div className="flex">
+            <Sidebar />
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/add-product" element={<Addproduct />} />
+              <Route path="/new-invoice" element={<NewInvoice />} />
+            </Routes>
+          </div>
+        </>
+      )}
+    </>
+  );
 };
 
 export default App;
