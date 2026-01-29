@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { RxCross2 } from "react-icons/rx";
-import html2pdf from "html2pdf.js";
+import AppContext from "../context/AppContext";
+// import html2pdf from "html2pdf.js";
 
 const NewInvoice = () => {
   const [list, setList] = useState([]);
@@ -10,6 +11,8 @@ const NewInvoice = () => {
     price: "",
     quantity: "",
   });
+
+  const { profile } = useContext(AppContext);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,17 +60,26 @@ const NewInvoice = () => {
 
   const exportPDF = () => {
     const element = document.getElementById("invoice-pdf");
+    const pdfWindow = window.open("", "", "width=800,height=600");
+    pdfWindow.document.writeln(
+      "<html><head><title>Print Invoice</title></head><body>",
+    );
+    pdfWindow.document.writeln(element.innerHTML);
+    pdfWindow.document.writeln("<body></html>");
+    pdfWindow.document.close();
+    pdfWindow.print();
+    // const element = document.getElementById("invoice-pdf");
 
-    html2pdf()
-      .set({
-        margin: 8,
-        filename: `invoice-${Date.now()}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      })
-      .from(element)
-      .save();
+    // html2pdf()
+    //   .set({
+    //     margin: 8,
+    //     filename: `invoice-${Date.now()}.pdf`,
+    //     image: { type: "jpeg", quality: 0.98 },
+    //     html2canvas: { scale: 2, useCORS: true },
+    //     jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    //   })
+    //   .from(element)
+    //   .save();
   };
 
   return (
@@ -79,7 +91,22 @@ const NewInvoice = () => {
           <h1 className="text-2xl font-bold">INVOICE</h1>
           <p className="text-sm">Billing System</p>
         </div>
-
+        {/* Bank Details */}
+        <div className="border rounded p-4 w-70">
+          <p className="text-xl font-medium">Bank Details</p>
+          <p className="flex justify-between">
+            Bank: <span>{profile.bank}</span>
+          </p>
+          <p className="flex justify-between">
+            Branch: <span>{profile.branch}</span>
+          </p>
+          <p className="flex justify-between">
+            A/C No: <span>{profile.account}</span>
+          </p>
+          <p className="flex justify-between">
+            IFSC Code: <span>{profile.ifsc}</span>
+          </p>
+        </div>
         {/* CUSTOMER DETAILS */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>

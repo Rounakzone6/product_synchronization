@@ -3,8 +3,10 @@ import AppContext from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Input from "./Input";
+
 const UpdateBank = () => {
-  const { backendUrl,profile, token, loading, setLoading } = useContext(AppContext);
+  const { backendUrl, profile, token, loading, setLoading } =
+    useContext(AppContext);
 
   const [isEditing, setIsEditing] = useState(false);
   const [bankDetails, setBankDetails] = useState({
@@ -118,7 +120,5 @@ const UpdateBank = () => {
     </div>
   );
 };
-
-
 
 export default UpdateBank;

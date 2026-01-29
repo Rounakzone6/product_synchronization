@@ -5,8 +5,8 @@ import { toast } from "react-toastify";
 import { CiCirclePlus, CiCircleMinus } from "react-icons/ci";
 
 const UpdateTnc = () => {
-  const { backendUrl, profile, token, loading, setLoading } =
-    useContext(AppContext);
+  const [loading, setLoading] = useState(false);
+  const { backendUrl, profile, token } = useContext(AppContext);
 
   const [isEditing, setIsEditing] = useState(false);
   const [tnc, setTnc] = useState([""]);

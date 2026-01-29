@@ -4,11 +4,11 @@ import { CiEdit, CiTrash } from "react-icons/ci";
 import { toast } from "react-toastify";
 import AppContext from "../context/AppContext";
 
-const Product = ({ index, product }) => {
+const Product = ({ index, product,setProduct }) => {
+  const { backendUrl, token } = useContext(AppContext);
+  
   const [editLoading, setEditLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const { backendUrl, token } = useContext(AppContext);
-
   const onEditHandler = async (id) => {
     try {
       setEditLoading(true);
@@ -17,6 +17,9 @@ const Product = ({ index, product }) => {
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       );
+      if(response.data.success){
+        setProduct((prev)=>product.filter(prev!==id))
+      }
       toast[response.data.success ? "success" : "error"](response.data.message);
     } catch (error) {
       toast.error(error.response?.data?.message || error.message);
