@@ -1,7 +1,6 @@
 import { useContext, useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 import AppContext from "../context/AppContext";
-// import html2pdf from "html2pdf.js";
 
 const NewInvoice = () => {
   const [list, setList] = useState([]);
@@ -68,30 +67,16 @@ const NewInvoice = () => {
     pdfWindow.document.writeln("<body></html>");
     pdfWindow.document.close();
     pdfWindow.print();
-    // const element = document.getElementById("invoice-pdf");
-
-    // html2pdf()
-    //   .set({
-    //     margin: 8,
-    //     filename: `invoice-${Date.now()}.pdf`,
-    //     image: { type: "jpeg", quality: 0.98 },
-    //     html2canvas: { scale: 2, useCORS: true },
-    //     jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-    //   })
-    //   .from(element)
-    //   .save();
   };
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 ml-64">
-      {/* ================= INVOICE ================= */}
       <div id="invoice-pdf" className="invoice-container mx-auto p-6">
         {/* HEADER */}
         <div className="text-center border-b pb-3 mb-4">
           <h1 className="text-2xl font-bold">INVOICE</h1>
           <p className="text-sm">Billing System</p>
         </div>
-        {/* Bank Details */}
 
         {/* CUSTOMER DETAILS */}
         <div className="grid grid-cols-2 gap-4 mb-4">
