@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 import AppContext from "../context/AppContext";
 // import html2pdf from "html2pdf.js";
@@ -92,21 +92,7 @@ const NewInvoice = () => {
           <p className="text-sm">Billing System</p>
         </div>
         {/* Bank Details */}
-        <div className="border rounded p-4 w-70">
-          <p className="text-xl font-medium">Bank Details</p>
-          <p className="flex justify-between">
-            Bank: <span>{profile.bank}</span>
-          </p>
-          <p className="flex justify-between">
-            Branch: <span>{profile.branch}</span>
-          </p>
-          <p className="flex justify-between">
-            A/C No: <span>{profile.account}</span>
-          </p>
-          <p className="flex justify-between">
-            IFSC Code: <span>{profile.ifsc}</span>
-          </p>
-        </div>
+
         {/* CUSTOMER DETAILS */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
@@ -161,55 +147,94 @@ const NewInvoice = () => {
           <button className="bg-black text-white rounded">Add</button>
         </form>
 
-        {/* TABLE HEADER */}
-        <div className="invoice-table-header grid grid-cols-11 p-2 font-semibold">
-          <p>#</p>
-          <p>Item</p>
-          <p>Brand</p>
-          <p>Qty</p>
-          <p>MRP</p>
-          <p>Rate</p>
-          <p>Taxable</p>
-          <p>GST %</p>
-          <p>GST Amt</p>
-          <p>Total</p>
-          <p className="no-print">❌</p>
-        </div>
+        <table className="w-full">
+          <tr>
+            <th className="p-2">#</th>
+            <th>Item</th>
+            <th>Brand</th>
+            <th>Qty</th>
+            <th>MRP</th>
+            <th>Rate</th>
+            <th>Taxable</th>
+            <th>GST %</th>
+            <th>GST AMT</th>
+            <th>Cost</th>
+            <th>Action</th>
+          </tr>
+          {list.map((item, index) => {
+            const rate = item.price * 0.9;
+            const taxable = rate * item.quantity;
+            const gst = taxable * 0.05;
+            const total = taxable + gst;
 
-        {/* ITEMS */}
-        {list.map((item, index) => {
-          const rate = item.price * 0.9;
-          const taxable = rate * item.quantity;
-          const gst = taxable * 0.05;
-          const total = taxable + gst;
-
-          return (
-            <div
-              key={item.id}
-              className="grid grid-cols-11 p-2 border-b items-center text-sm"
-            >
-              <p>{index + 1}</p>
-              <p>{item.name}</p>
-              <p>{item.brand}</p>
-              <p>{item.quantity}</p>
-              <p>₹{item.price}</p>
-              <p>₹{rate.toFixed(2)}</p>
-              <p>₹{taxable.toFixed(2)}</p>
-              <p>5%</p>
-              <p>₹{gst.toFixed(2)}</p>
-              <p className="font-semibold">₹{total.toFixed(2)}</p>
-              <RxCross2
-                onClick={() => removeItem(item.id)}
-                className="text-red-600 cursor-pointer no-print"
-              />
-            </div>
-          );
-        })}
+            return (
+              <tr key={item.id} className="text-center">
+                <td className="p-2">{index + 1}</td>
+                <td className="text-start pl-2">{item.name}</td>
+                <td className="text-start pl-2">{item.brand}</td>
+                <td>{item.quantity}</td>
+                <td>{item.price}</td>
+                <td>{rate.toFixed(2)}</td>
+                <td>{taxable.toFixed(2)}</td>
+                <td>5%</td>
+                <td>{gst.toFixed(2)}</td>
+                <td className="font-semibold">{total.toFixed(2)}</td>
+                <td>
+                  <RxCross2
+                    className="text-xl ml-6 cursor-pointer"
+                    onClick={() => removeItem(item.id)}
+                  />
+                </td>
+              </tr>
+            );
+          })}
+        </table>
 
         {/* TOTAL */}
         <div className="text-right font-bold text-lg mt-4">
           Final Amount: ₹{finalAmount.toFixed(2)}
         </div>
+      </div>
+      <div className="flex gap-5">
+        <div className="border rounded-lg p-4"></div>
+        <div className="border rounded-lg p-4 max-w-sm bg-white shadow-sm">
+          <p className="text-lg font-semibold mb-3 border-b pb-1">
+            Bank Details
+          </p>
+
+          <div className="space-y-2 text-sm">
+            <div className="flex gap-2">
+              <span className="text-gray-600 min-w-12.5">Bank</span>
+              <span className="font-medium">: {profile?.bank || "-"}</span>
+            </div>
+
+            <div className="flex gap-2">
+              <span className="text-gray-600 min-w-12.5">Branch</span>
+              <span className="font-medium">: {profile?.branch || "-"}</span>
+            </div>
+
+            <div className="flex gap-2">
+              <span className="text-gray-600 min-w-12.5">A/C No</span>
+              <span className="font-medium break-all">
+                : {profile?.account || "-"}
+              </span>
+            </div>
+
+            <div className="flex gap-2">
+              <span className="text-gray-600 min-w-12.5">IFSC</span>
+              <span className="font-medium">: {profile?.ifsc || "-"}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p className="font-medium">Terms & Conditions</p>
+        {profile?.tnc?.map((item, index) => (
+          <div key={index} className="flex gap-2">
+            <span>{index + 1}.</span>
+            <span>{item}</span>
+          </div>
+        ))}
       </div>
 
       {/* EXPORT BUTTON */}

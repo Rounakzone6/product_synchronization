@@ -27,21 +27,14 @@
   width: 100%;
 }
 
-/* Table header */
-.invoice-table-header {
-  background-color: #374151 !important; /* gray-700 */
-  color: #ffffff !important;
-}
-
-/* Hide UI-only elements in PDF */
-@media print {
-  .no-print {
-    display: none !important;
-  }
-}
-
 /* Prevent page break inside rows */
 tr,
 .invoice-row {
   page-break-inside: avoid;
+}
+
+table,
+th,
+td {
+  border: 1px solid black;
 }
