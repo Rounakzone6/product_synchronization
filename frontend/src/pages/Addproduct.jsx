@@ -43,7 +43,7 @@ const Addproduct = () => {
   };
 
   return (
-    <div className="border border-gray-200 my-2 rounded-2xl shadow-sm p-6 max-w-2xl mx-auto md:w-full mt-20">
+    <div className="border border-gray-200 my-2 rounded-2xl shadow-sm p-6 max-w-2xl mx-auto md:w-full mt-20 ml-64">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <h2 className="text-xl font-semibold text-gray-800">Add Product</h2>
         <RxCross2

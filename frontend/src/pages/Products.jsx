@@ -79,7 +79,7 @@ const Products = () => {
   }, [token, backendUrl, setLoading]);
 
   return (
-    <div className="w-full p-4">
+    <div className="w-full p-4 ml-64">
       <div className="grid grid-cols-6 gap-4 bg-gray-800 text-white rounded-t-xl font-semibold border-b p-3">
         <p>S.No.</p>
         <p>Name</p>
