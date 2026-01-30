@@ -70,8 +70,8 @@ const NewInvoice = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 ml-64">
-      <div id="invoice-pdf" className="invoice-container mx-auto p-6">
+    <div className="w-full ml-70 mr-20 p-6 mt-4 border">
+      <div id="invoice-pdf" className="invoice-container">
         {/* HEADER */}
         <div className="text-center border-b pb-3 mb-4">
           <h1 className="text-2xl font-bold">INVOICE</h1>
