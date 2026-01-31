@@ -29,7 +29,7 @@ const adminRegister = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" },
     );
-    res.json({ success: true, token, message: "Welcome to Dashboard" });
+    res.json({ success: true, token });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
@@ -48,7 +48,7 @@ const adminLogin = async (req, res) => {
     const token = jwt.sign({ id: admin._id, email }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
-    res.json({ success: true, token, message: "Welcome to Dashboard" });
+    res.json({ success: true, token });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
