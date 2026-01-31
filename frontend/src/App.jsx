@@ -10,7 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Addproduct from "./pages/Addproduct";
 import NewInvoice from "./pages/NewInvoice";
-
+import ScrollToTop from "./components/ScrollToTop";
 
 const App = () => {
   const { token } = useContext(AppContext);
@@ -21,6 +21,7 @@ const App = () => {
       ) : (
         <>
           <ToastContainer />
+          <ScrollToTop />
           <Navbar />
           <div className="flex">
             <Sidebar />
