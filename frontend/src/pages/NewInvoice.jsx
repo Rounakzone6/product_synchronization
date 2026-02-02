@@ -2,6 +2,19 @@ import { useContext, useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 import AppContext from "../context/AppContext";
 
+/* 🔹 GST INCLUDED calculation */
+const calculateGSTIncluded = (price, quantity, gstPercent = 5) => {
+  const finalCost = price * quantity;
+  const taxableAmount = (finalCost * 100) / (100 + gstPercent);
+  const gstAmount = finalCost - taxableAmount;
+
+  return {
+    taxableAmount,
+    gstAmount,
+    finalCost,
+  };
+};
+
 const NewInvoice = () => {
   const [list, setList] = useState([]);
   const [product, setProduct] = useState({
@@ -20,8 +33,8 @@ const NewInvoice = () => {
 
   const onProductAdd = (e) => {
     e.preventDefault();
-
     const { name, brand, price, quantity } = product;
+
     if (!name || !brand || !price || !quantity) {
       alert("All fields required");
       return;
@@ -30,7 +43,7 @@ const NewInvoice = () => {
     setList((prev) => [
       ...prev,
       {
-        id: Date.now(),
+        id: crypto.randomUUID(),
         name,
         brand,
         price: Number(price),
@@ -38,12 +51,7 @@ const NewInvoice = () => {
       },
     ]);
 
-    setProduct({
-      name: "",
-      brand: "",
-      price: "",
-      quantity: "",
-    });
+    setProduct({ name: "", brand: "", price: "", quantity: "" });
   };
 
   const removeItem = (id) => {
@@ -51,184 +59,134 @@ const NewInvoice = () => {
   };
 
   const finalAmount = list.reduce((sum, item) => {
-    const rate = item.price * 0.9;
-    const taxable = rate * item.quantity;
-    const gst = taxable * 0.05;
-    return sum + taxable + gst;
+    return sum + item.price * item.quantity;
   }, 0);
 
   const exportPDF = () => {
-    const element = document.getElementById("invoice-pdf");
-    const pdfWindow = window.open("", "", "width=800,height=600");
-    pdfWindow.document.writeln(
-      "<html><head><title>Print Invoice</title></head><body>",
-    );
-    pdfWindow.document.writeln(element.innerHTML);
-    pdfWindow.document.writeln("<body></html>");
-    pdfWindow.document.close();
-    pdfWindow.print();
+    window.print();
   };
 
   return (
-    <div className="w-full ml-70 mr-20 p-6 mt-4 border">
-      <div id="invoice-pdf" className="invoice-container">
-        {/* HEADER */}
-        <div className="text-center border-b pb-3 mb-4">
-          <h1 className="text-2xl font-bold">INVOICE</h1>
-          <p className="text-sm">Billing System</p>
-        </div>
+    <div id="invoice-pdf" className="p-6 mx-auto border bg-white">
+      {/* HEADER */}
+      <div className="text-center border-b pb-3 mb-4">
+        <h1 className="text-2xl font-bold">INVOICE</h1>
+        <p className="text-sm">Billing System</p>
+      </div>
 
-        {/* CUSTOMER DETAILS */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="text-sm">Customer Name</label>
-            <input className="invoice-input" />
-          </div>
-          <div>
-            <label className="text-sm">Phone</label>
-            <input className="invoice-input" />
-          </div>
-          <div className="col-span-2">
-            <label className="text-sm">Address</label>
-            <input className="invoice-input" />
-          </div>
-        </div>
+      {/* ADD ITEM FORM (HIDDEN IN PRINT) */}
+      <form
+        onSubmit={onProductAdd}
+        className="grid grid-cols-5 gap-3 mb-4 no-print"
+      >
+        <input
+          name="name"
+          placeholder="Item"
+          value={product.name}
+          onChange={handleChange}
+          className="invoice-input"
+        />
+        <input
+          name="brand"
+          placeholder="Brand"
+          value={product.brand}
+          onChange={handleChange}
+          className="invoice-input"
+        />
+        <input
+          type="number"
+          name="quantity"
+          placeholder="Qty"
+          value={product.quantity}
+          onChange={handleChange}
+          className="invoice-input"
+        />
+        <input
+          type="number"
+          name="price"
+          placeholder="Final Price (Incl. GST)"
+          value={product.price}
+          onChange={handleChange}
+          className="invoice-input"
+        />
+        <button className="bg-black text-white rounded">Add</button>
+      </form>
 
-        {/* ADD ITEM FORM (NO PDF) */}
-        <form
-          onSubmit={onProductAdd}
-          className="grid grid-cols-5 gap-3 mb-4 no-print"
-        >
-          <input
-            name="name"
-            placeholder="Item"
-            value={product.name}
-            onChange={handleChange}
-            className="invoice-input"
-          />
-          <input
-            name="brand"
-            placeholder="Brand"
-            value={product.brand}
-            onChange={handleChange}
-            className="invoice-input"
-          />
-          <input
-            type="number"
-            name="quantity"
-            placeholder="Qty"
-            value={product.quantity}
-            onChange={handleChange}
-            className="invoice-input"
-          />
-          <input
-            type="number"
-            name="price"
-            placeholder="Rate"
-            value={product.price}
-            onChange={handleChange}
-            className="invoice-input"
-          />
-          <button className="bg-black text-white rounded">Add</button>
-        </form>
-
-        <table className="w-full">
-          <tr>
-            <th className="p-2">#</th>
+      {/* TABLE */}
+      <table className="w-full border border-collapse">
+        <thead>
+          <tr className="border bg-gray-100">
+            <th>#</th>
             <th>Item</th>
             <th>Brand</th>
             <th>Qty</th>
-            <th>MRP</th>
-            <th>Rate</th>
+            <th>Final Price</th>
             <th>Taxable</th>
-            <th>GST %</th>
-            <th>GST AMT</th>
-            <th>Cost</th>
-            <th>Action</th>
+            <th>GST (5%)</th>
+            <th>Total</th>
+            <th className="no-print">Action</th>
           </tr>
+        </thead>
+        <tbody>
           {list.map((item, index) => {
-            const rate = item.price * 0.9;
-            const taxable = rate * item.quantity;
-            const gst = taxable * 0.05;
-            const total = taxable + gst;
+            const { taxableAmount, gstAmount, finalCost } =
+              calculateGSTIncluded(item.price, item.quantity);
 
             return (
-              <tr key={item.id} className="text-center">
-                <td className="p-2">{index + 1}</td>
-                <td className="text-start pl-2">{item.name}</td>
-                <td className="text-start pl-2">{item.brand}</td>
+              <tr key={item.id} className="text-center border">
+                <td>{index + 1}</td>
+                <td className="text-left pl-2">{item.name}</td>
+                <td className="text-left pl-2">{item.brand}</td>
                 <td>{item.quantity}</td>
-                <td>{item.price}</td>
-                <td>{rate.toFixed(2)}</td>
-                <td>{taxable.toFixed(2)}</td>
-                <td>5%</td>
-                <td>{gst.toFixed(2)}</td>
-                <td className="font-semibold">{total.toFixed(2)}</td>
-                <td>
+                <td>{item.price.toFixed(2)}</td>
+                <td>{taxableAmount.toFixed(2)}</td>
+                <td>{gstAmount.toFixed(2)}</td>
+                <td className="font-semibold">
+                  {finalCost.toFixed(2)}
+                </td>
+                <td className="no-print">
                   <RxCross2
-                    className="text-xl ml-6 cursor-pointer"
+                    className="cursor-pointer mx-auto"
                     onClick={() => removeItem(item.id)}
                   />
                 </td>
               </tr>
             );
           })}
-        </table>
+        </tbody>
+      </table>
 
-        {/* TOTAL */}
-        <div className="text-right font-bold text-lg mt-4">
-          Final Amount: ₹{finalAmount.toFixed(2)}
-        </div>
+      {/* TOTAL */}
+      <div className="text-right font-bold text-lg mt-4">
+        Final Amount: ₹{finalAmount.toFixed(2)}
       </div>
-      <div className="flex gap-5">
-        <div className="border rounded-lg p-4"></div>
-        <div className="border rounded-lg p-4 max-w-sm bg-white shadow-sm">
-          <p className="text-lg font-semibold mb-3 border-b pb-1">
-            Bank Details
-          </p>
 
-          <div className="space-y-2 text-sm">
-            <div className="flex gap-2">
-              <span className="text-gray-600 min-w-12.5">Bank</span>
-              <span className="font-medium">: {profile?.bank || "-"}</span>
-            </div>
-
-            <div className="flex gap-2">
-              <span className="text-gray-600 min-w-12.5">Branch</span>
-              <span className="font-medium">: {profile?.branch || "-"}</span>
-            </div>
-
-            <div className="flex gap-2">
-              <span className="text-gray-600 min-w-12.5">A/C No</span>
-              <span className="font-medium break-all">
-                : {profile?.account || "-"}
-              </span>
-            </div>
-
-            <div className="flex gap-2">
-              <span className="text-gray-600 min-w-12.5">IFSC</span>
-              <span className="font-medium">: {profile?.ifsc || "-"}</span>
-            </div>
-          </div>
-        </div>
+      {/* BANK DETAILS */}
+      <div className="mt-6 max-w-sm border p-4">
+        <p className="font-semibold border-b mb-2">Bank Details</p>
+        <p>Bank: {profile?.bank || "-"}</p>
+        <p>Branch: {profile?.branch || "-"}</p>
+        <p>A/C No: {profile?.account || "-"}</p>
+        <p>IFSC: {profile?.ifsc || "-"}</p>
       </div>
-      <div>
-        <p className="font-medium">Terms & Conditions</p>
+
+      {/* TERMS */}
+      <div className="mt-4">
+        <p className="font-semibold">Terms & Conditions</p>
         {profile?.tnc?.map((item, index) => (
-          <div key={index} className="flex gap-2">
-            <span>{index + 1}.</span>
-            <span>{item}</span>
-          </div>
+          <p key={index}>
+            {index + 1}. {item}
+          </p>
         ))}
       </div>
 
-      {/* EXPORT BUTTON */}
-      <div className="mt-4 text-center">
+      {/* PRINT BUTTON */}
+      <div className="mt-6 text-center no-print">
         <button
           onClick={exportPDF}
           className="bg-red-600 text-white px-6 py-2 rounded"
         >
-          Export PDF
+          Print / Export PDF
         </button>
       </div>
     </div>

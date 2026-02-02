@@ -4,13 +4,17 @@
    INVOICE PDF SAFE STYLES
    ========================= */
 
+/* A4 invoice container */
 #invoice-pdf {
-  width: 210mm; /* A4 width */
+  width: 210mm;
+  min-height: 297mm;
+  margin: auto;
+  padding: 16px;
   background-color: #ffffff !important;
   color: #000000 !important;
 }
 
-/* Remove Tailwind OKLCH colors for PDF */
+/* Neutralize Tailwind colors for print */
 #invoice-pdf,
 #invoice-pdf * {
   background-color: transparent !important;
@@ -19,7 +23,7 @@
   box-shadow: none !important;
 }
 
-/* Inputs */
+/* Inputs (screen + print) */
 .invoice-input {
   border: 1px solid #000;
   padding: 4px 6px;
@@ -27,14 +31,58 @@
   width: 100%;
 }
 
-/* Prevent page break inside rows */
-tr,
-.invoice-row {
-  page-break-inside: avoid;
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-table,
 th,
 td {
   border: 1px solid black;
+  padding: 6px;
+  font-size: 12px;
+}
+
+/* Avoid row breaking */
+tr {
+  page-break-inside: avoid;
+}
+
+/* =========================
+   PRINT SETTINGS
+   ========================= */
+
+@media print {
+  /* Hide everything */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only invoice */
+  #invoice-pdf,
+  #invoice-pdf * {
+    visibility: visible;
+  }
+
+  /* Position invoice correctly */
+  #invoice-pdf {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm;
+  }
+
+  /* Hide buttons, icons, inputs */
+  .no-print,
+  button,
+  svg {
+    display: none !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
 }
