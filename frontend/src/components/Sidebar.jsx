@@ -1,18 +1,66 @@
-import React from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink } from "react-router-dom";
+import { FaFileInvoice, FaListUl, FaClockRotateLeft } from "react-icons/fa6";
+import { MdAddShoppingCart } from "react-icons/md";
+
+const sidebar = [
+  {
+    name: "All Products",
+    path: "/products",
+    icon: <FaListUl size={18} />,
+  },
+  {
+    name: "New Invoice",
+    path: "/new-invoice",
+    icon: <FaFileInvoice size={18} />,
+  },
+  {
+    name: "Add Product",
+    path: "/add-product",
+    icon: <MdAddShoppingCart size={20} />,
+  },
+  {
+    name: "History",
+    path: "/history",
+    icon: <FaClockRotateLeft size={18} />,
+  },
+];
 
 const Sidebar = () => {
-    return (
-        <div className='min-h-screen w-64 bg-black text-white p-4 flex flex-col gap-2 rounded-r-2xl fixed'>
-            <NavLink to={'/products'} className={({ isActive }) => `${isActive ? 'text-black bg-white py-1 pl-1 rounded font-semibold' : 'text-white font-semibold'}`}>
-                All Products
-            </NavLink>
+  return (
+    <aside className="h-screen bg-white border-r border-gray-200">
+      <div
+        className="
+          flex flex-col gap-1 p-3
+          w-16 md:w-64
+          transition-all duration-300
+        "
+      >
+        {sidebar.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) =>
+              `
+              flex items-center gap-3 px-3 py-2 rounded-lg
+              text-gray-600 font-medium
+              hover:bg-gray-100 hover:text-gray-900
+              transition-colors duration-200
+              ${isActive ? "bg-gray-100 text-gray-900" : ""}
+              `
+            }
+          >
+            {/* Icon */}
+            <span className="mx-auto md:mx-0">{item.icon}</span>
 
-            <NavLink to={'/new-invoice'} className={({ isActive }) => `${isActive ? 'text-black bg-white py-1 pl-1 rounded font-semibold ' : 'text-white font-semibold'}`}>New Invoice</NavLink>
-            <NavLink to={'/add-product'} className={({ isActive }) => `${isActive ? 'text-black bg-white py-1 pl-1 rounded font-semibold' : 'text-white font-semibold'}`}>Add Product</NavLink>
-            <NavLink to={'/history'} className={({ isActive }) => `${isActive ? 'text-black bg-white py-1 pl-1 rounded font-semibold' : 'text-white font-semibold'}`}>History</NavLink>
-        </div>
-    )
-}
+            {/* Text */}
+            <span className="hidden md:inline whitespace-nowrap">
+              {item.name}
+            </span>
+          </NavLink>
+        ))}
+      </div>
+    </aside>
+  );
+};
 
-export default Sidebar
+export default Sidebar;

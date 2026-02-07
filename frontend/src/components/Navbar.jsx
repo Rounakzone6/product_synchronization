@@ -2,32 +2,54 @@ import { useContext } from "react";
 import AppContext from "../context/AppContext";
 
 const Navbar = () => {
-  const { navigate, setToken } = useContext(AppContext);
+  const { token, navigate, setToken, profile } = useContext(AppContext);
+
   const logout = () => {
     setToken("");
     navigate("/");
   };
 
   return (
-    <div className="sticky top-0 z-10 bg-gray-500">
-    <div className="flex max-w-[90vw] py-4 mx-auto items-center justify-between">
-      <p className="text-2xl font-medium">Billing System</p>
-      <div className="flex gap-4">
-        <p
-          className="cursor-pointer text-white bg-green-500 rounded px-3 py-2"
-          onClick={() => navigate("/profile")}
-        >
-          Manage Profile
-        </p>
-        <button
-          className="cursor-pointer text-white bg-black/60 rounded px-3 py-2"
-          onClick={logout}
-        >
-          Logout
-        </button>
+    <header className="sticky top-0 z-20 bg-white border-b border-gray-200">
+      <div className="px-4 py-3">
+        <div className="flex items-center justify-between">
+          <p
+            onClick={() => navigate("/")}
+            className="text-lg sm:text-xl font-semibold text-gray-800 cursor-pointer truncate"
+            title={token ? profile.business : "Billing Management"}
+          >
+            {token ? profile.business : "Billing Management"}
+          </p>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button
+              onClick={() => navigate("/profile")}
+              className="
+                text-sm sm:text-base
+                bg-green-500 text-white
+                px-3 py-2 rounded-lg
+                hover:bg-green-600
+                transition-colors
+              "
+            >
+              Profile
+            </button>
+
+            <button
+              onClick={logout}
+              className="
+                text-sm sm:text-base
+                bg-gray-800 text-white
+                px-3 py-2 rounded-lg
+                hover:bg-gray-900
+                transition-colors
+              "
+            >
+              Logout
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-    </div>
+    </header>
   );
 };
 

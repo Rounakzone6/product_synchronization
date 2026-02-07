@@ -11,6 +11,7 @@ import Products from "./pages/Products";
 import Addproduct from "./pages/Addproduct";
 import NewInvoice from "./pages/NewInvoice";
 import ScrollToTop from "./components/ScrollToTop";
+import History from "./pages/History";
 
 const App = () => {
   const { token } = useContext(AppContext);
@@ -29,6 +30,7 @@ const App = () => {
               <Route path="/" element={<Dashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/products" element={<Products />} />
+              <Route path="/history" element={<History />} />
               <Route path="/add-product" element={<Addproduct />} />
               <Route path="/new-invoice" element={<NewInvoice />} />
             </Routes>

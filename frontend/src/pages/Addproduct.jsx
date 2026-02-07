@@ -43,62 +43,75 @@ const Addproduct = () => {
   };
 
   return (
-    <div className="border border-gray-200 my-2 rounded-2xl shadow-sm p-6 max-w-2xl mx-auto md:w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-        <h2 className="text-xl font-semibold text-gray-800">Add Product</h2>
-        <RxCross2
-          onClick={() => navigate("/")}
-          className="text-3xl font-medium "
-        />
+    <div className="w-full md:m-6 m-2">
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 sm:p-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">Add Product</h2>
+          <button
+            onClick={() => navigate("/")}
+            className="p-1 rounded-full hover:bg-gray-100 transition"
+          >
+            <RxCross2 className="text-2xl text-gray-600" />
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={onSubmitHandler} className="flex flex-col gap-4">
+          <Input
+            label="Name"
+            name="name"
+            placeholder="Enter Product Name"
+            value={product.name}
+            onChange={handleChange}
+            required
+          />
+
+          <Input
+            label="Brand"
+            name="brand"
+            placeholder="Enter Brand Name"
+            value={product.brand}
+            onChange={handleChange}
+            required
+          />
+
+          <Input
+            label="Price"
+            name="price"
+            type="number"
+            placeholder="₹0.00"
+            value={product.price}
+            onChange={handleChange}
+            required
+          />
+
+          <Input
+            label="Quantity"
+            name="quantity"
+            type="number"
+            placeholder="0"
+            value={product.quantity}
+            onChange={handleChange}
+            required
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="
+            self-end mt-2
+            px-6 py-2 rounded-lg
+            bg-green-600 text-white font-medium
+            hover:bg-green-700
+            transition
+            disabled:opacity-60
+          "
+          >
+            {loading ? "Submitting..." : "Add Product"}
+          </button>
+        </form>
       </div>
-      <form
-        id="bank-form"
-        onSubmit={onSubmitHandler}
-        className="flex flex-col gap-4"
-      >
-        <Input
-          label="Name"
-          name="name"
-          placeholder="Enter Product Name"
-          type="text"
-          required
-          value={product.name}
-          onChange={handleChange}
-        />
-        <Input
-          label="Brand"
-          name="brand"
-          placeholder="Enter Brand Name"
-          type="text"
-          required
-          value={product.brand}
-          onChange={handleChange}
-        />
-        <Input
-          label="Price"
-          name="price"
-          placeholder="Enter Product Price "
-          type="text"
-          required
-          value={product.price}
-          onChange={handleChange}
-        />
-        <Input
-          label="Quantity"
-          name="quantity"
-          placeholder="0"
-          type="number"
-          required
-          value={product.quantity}
-          onChange={handleChange}
-        />
-        <button
-          type="submit"
-          className="px-2 py-2 w-30 self-end rounded-lg bg-green-600 text-white hover:bg-green-700 transition disabled:opacity-60"
-        >
-          {loading ? "Submitting..." : "Add Product"}
-        </button>
-      </form>
     </div>
   );
 };
