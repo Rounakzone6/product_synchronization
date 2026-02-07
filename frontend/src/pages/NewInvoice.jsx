@@ -1,152 +1,315 @@
-import { useState } from "react";
-import { RxCross2 } from "react-icons/rx";
+import { useState, useMemo, useRef } from "react";
+import { RxCross2, RxPlus } from "react-icons/rx";
+import { FiPrinter, FiRefreshCw } from "react-icons/fi";
+import Invoice from "../components/Invoice";
 
-const calculateGSTIncluded = (price, quantity, gstPercent = 5) => {
-  const finalCost = price * quantity;
-  const taxableAmount = (finalCost * 100) / (100 + gstPercent);
-  const gstAmount = finalCost - taxableAmount;
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 2,
+  }).format(amount);
+};
 
-  return {
-    taxableAmount,
-    gstAmount,
-    finalCost,
-  };
+const calculateRowDetails = (price, quantity, gstPercent = 18) => {
+  const totalRaw = price * quantity;
+  const netAmount = (price * 100) / (100 + gstPercent);
+  const taxableAmount = (totalRaw * 100) / (100 + gstPercent);
+  const gstAmount = totalRaw - taxableAmount;
+
+  return { netAmount, taxableAmount, gstAmount, totalRaw };
 };
 
 const NewInvoice = () => {
-  const [list, setList] = useState([]);
+  const nameInputRef = useRef(null);
+  const [items, setItems] = useState([]);
+
+  const [client, setClient] = useState({
+    name: "",
+    phone: "",
+    address: "",
+  });
+
   const [product, setProduct] = useState({
     name: "",
     brand: "",
     price: "",
     quantity: "",
   });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProduct((prev) => ({ ...prev, [name]: value }));
+  const totals = useMemo(() => {
+    return items.reduce(
+      (acc, item) => {
+        const { taxableAmount, gstAmount, totalRaw } = calculateRowDetails(
+          item.price,
+          item.quantity,
+        );
+        return {
+          taxable: acc.taxable + taxableAmount,
+          gst: acc.gst + gstAmount,
+          grandTotal: acc.grandTotal + totalRaw,
+        };
+      },
+      { taxable: 0, gst: 0, grandTotal: 0 },
+    );
+  }, [items]);
+  const handleClientChange = (e) => {
+    setClient((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const onProductAdd = (e) => {
+  const handleProductChange = (e) => {
+    setProduct((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const addItem = (e) => {
     e.preventDefault();
     const { name, brand, price, quantity } = product;
 
-    if (!name || !brand || !price || !quantity) {
-      alert("All fields required");
+    if (!name || !price || !quantity) {
+      alert("Please fill in Item Name, Price, and Quantity.");
       return;
     }
 
-    setList((prev) => [
+    if (parseFloat(price) <= 0 || parseFloat(quantity) <= 0) {
+      alert("Price and Quantity must be greater than 0");
+      return;
+    }
+
+    setItems((prev) => [
       ...prev,
       {
-        id: crypto.randomUUID(),
+        id: Date.now() + Math.random(),
         name,
-        brand,
-        price: Number(price),
-        quantity: Number(quantity),
+        brand: brand || "-",
+        price: parseFloat(price),
+        quantity: parseFloat(quantity),
       },
     ]);
-
     setProduct({ name: "", brand: "", price: "", quantity: "" });
+    nameInputRef.current?.focus();
   };
 
   const removeItem = (id) => {
-    setList((prev) => prev.filter((item) => item.id !== id));
+    setItems((prev) => prev.filter((i) => i.id !== id));
   };
 
-  const finalAmount = list.reduce((sum, item) => {
-    return sum + item.price * item.quantity;
-  }, 0);
+  const handlePrint = () => window.print();
 
-  const exportPDF = () => {
-    window.print();
+  const handleReset = () => {
+    if (window.confirm("Clear all invoice data?")) {
+      setItems([]);
+      setClient({ name: "", phone: "", address: "" });
+      setProduct({ name: "", brand: "", price: "", quantity: "" });
+    }
   };
 
   return (
-    <div id="invoice-pdf" className="border bg-white">
-      <form
-        onSubmit={onProductAdd}
-        className="grid grid-cols-5 gap-3 mb-4 no-print"
-      >
-        <input
-          name="name"
-          placeholder="Item"
-          value={product.name}
-          onChange={handleChange}
-          className="invoice-input"
-        />
-        <input
-          name="brand"
-          placeholder="Brand"
-          value={product.brand}
-          onChange={handleChange}
-          className="invoice-input"
-        />
-        <input
-          type="number"
-          name="quantity"
-          placeholder="Qty"
-          value={product.quantity}
-          onChange={handleChange}
-          className="invoice-input"
-        />
-        <input
-          type="number"
-          name="price"
-          placeholder="Final Price"
-          value={product.price}
-          onChange={handleChange}
-          className="invoice-input"
-        />
-        <button className="bg-black text-white rounded">Add</button>
-      </form>
-      <table className="w-full border border-collapse">
-        <thead>
-          <tr className="border bg-gray-100">
-            <th>#</th>
-            <th>Item</th>
-            <th>Brand</th>
-            <th>Qty</th>
-            <th>Final Price</th>
-            <th>Taxable</th>
-            <th>GST (5%)</th>
-            <th>Total</th>
-            <th className="no-print">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {list.map((item, index) => {
-            const { taxableAmount, gstAmount, finalCost } =
-              calculateGSTIncluded(item.price, item.quantity);
-
-            return (
-              <tr key={item.id} className="text-center border">
-                <td>{index + 1}</td>
-                <td className="text-left pl-2">{item.name}</td>
-                <td className="text-left pl-2">{item.brand}</td>
-                <td>{item.quantity}</td>
-                <td>{item.price.toFixed(2)}</td>
-                <td>{taxableAmount.toFixed(2)}</td>
-                <td>{gstAmount.toFixed(2)}</td>
-                <td className="font-semibold">{finalCost.toFixed(2)}</td>
-                <td className="no-print">
-                  <RxCross2
-                    className="cursor-pointer mx-auto"
-                    onClick={() => removeItem(item.id)}
-                  />
-                </td>
+    <>
+      <div className="bg-white border rounded-xl shadow-sm md:p-6 p-4 m-3 md:m-8 print:hidden max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-6 border-b pb-4">
+          <h2 className="text-2xl font-bold text-gray-800">Create Invoice</h2>
+          <button
+            onClick={handleReset}
+            className="flex items-center gap-2 text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
+          >
+            <FiRefreshCw /> Reset Form
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-lg border border-gray-100">
+          <Input
+            name="name"
+            value={client.name}
+            onChange={handleClientChange}
+            placeholder="Client Name"
+            label="Client Name"
+          />
+          <Input
+            name="phone"
+            value={client.phone}
+            onChange={handleClientChange}
+            placeholder="Phone Number"
+            label="Phone"
+          />
+          <div className="md:col-span-2">
+            <Input
+              name="address"
+              value={client.address}
+              onChange={handleClientChange}
+              placeholder="Billing Address"
+              label="Address"
+            />
+          </div>
+        </div>
+        <form
+          onSubmit={addItem}
+          className="grid grid-cols-2 md:grid-cols-12 gap-3 mb-6 items-end"
+        >
+          <div className="md:col-span-4">
+            <Input
+              ref={nameInputRef}
+              name="name"
+              placeholder="Item Name"
+              value={product.name}
+              onChange={handleProductChange}
+              label="Item"
+            />
+          </div>
+          <div className="md:col-span-3">
+            <Input
+              name="brand"
+              placeholder="Brand (Optional)"
+              value={product.brand}
+              onChange={handleProductChange}
+              label="Brand"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <Input
+              name="quantity"
+              type="number"
+              placeholder="0"
+              value={product.quantity}
+              onChange={handleProductChange}
+              label="Qty"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <Input
+              name="price"
+              type="number"
+              placeholder="0.00"
+              value={product.price}
+              onChange={handleProductChange}
+              label="Price (Inc. Tax)"
+            />
+          </div>
+          <div className="md:col-span-1">
+            <button className="w-full h-10.5 flex items-center justify-center bg-gray-900 text-white rounded-lg hover:bg-black transition-colors">
+              <RxPlus size={20} />
+            </button>
+          </div>
+        </form>
+        <div className="overflow-x-auto border rounded-lg mb-6">
+          <table className="w-full text-sm text-left text-gray-600">
+            <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
+              <tr>
+                <th className="px-4 py-3 w-12">#</th>
+                <th className="px-4 py-3">Item Description</th>
+                <th className="px-4 py-3">Brand</th>
+                <th className="px-4 py-3 text-center">Qty</th>
+                <th className="px-4 py-3 text-right">Rate</th>
+                <th className="px-4 py-3 text-right">Net</th>
+                <th className="px-4 py-3 text-right">Taxable</th>
+                <th className="px-4 py-3 text-right">GST</th>
+                <th className="px-4 py-3 text-right">Total</th>
+                <th className="px-4 py-3 text-center w-12">Action</th>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      <div className="text-right font-bold text-lg mt-4">
-        Final Amount: ₹{finalAmount.toFixed(2)}
-      </div>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {items.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className="text-center py-12 text-gray-400">
+                    <div className="flex flex-col items-center">
+                      <span className="text-lg">No items added</span>
+                      <span className="text-sm">
+                        Fill the form above to add products
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                items.map((item, i) => {
+                  const { netAmount, taxableAmount, gstAmount, totalRaw } =
+                    calculateRowDetails(item.price, item.quantity);
 
-      <button onClick={exportPDF} className="px-3 py-2 rounded-2xl border">
-        Export PDF
-      </button>
+                  return (
+                    <tr
+                      key={item.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-4 py-3 font-medium">{i + 1}</td>
+                      <td className="px-4 py-3 text-center">{item.name}</td>
+                      <td className="px-4 py-3 text-center">{item.brand}</td>
+                      <td className="px-4 py-3 text-center">{item.quantity}</td>
+                      <td className="px-4 py-3 text-right">
+                        {formatCurrency(item.price)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {formatCurrency(netAmount)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {formatCurrency(taxableAmount)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {formatCurrency(gstAmount)}
+                      </td>
+                      <td className="px-4 py-3 text-right font-bold text-gray-900">
+                        {formatCurrency(totalRaw)}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                          title="Remove Item"
+                        >
+                          <RxCross2 size={20} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex flex-col md:flex-row justify-between items-start gap-6">
+          <button
+            onClick={handlePrint}
+            disabled={items.length === 0}
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium shadow-sm transition-all
+                ${
+                  items.length === 0
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md"
+                }`}
+          >
+            <FiPrinter size={18} />
+            Print Invoice
+          </button>
+          <div className="w-full md:w-1/3 bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-2">
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>Taxable Amount:</span>
+              <span>{formatCurrency(totals.taxable)}</span>
+            </div>
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>Total GST:</span>
+              <span>{formatCurrency(totals.gst)}</span>
+            </div>
+            <div className="flex justify-between text-lg font-bold text-gray-900 border-t border-gray-200 pt-2 mt-2">
+              <span>Grand Total:</span>
+              <span>{formatCurrency(totals.grandTotal)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="hidden print:block">
+        <Invoice list={items} client={client} totals={totals} />
+      </div>
+    </>
+  );
+};
+const Input = ({ className = "", label, ref, ...props }) => {
+  return (
+    <div className="w-full">
+      {label && (
+        <label className="block text-xs font-medium text-gray-500 mb-1 ml-1">
+          {label}
+        </label>
+      )}
+      <input
+        ref={ref}
+        {...props}
+        className={`w-full outline-none border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 ${className}`}
+      />
     </div>
   );
 };
